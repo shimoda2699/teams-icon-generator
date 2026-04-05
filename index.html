@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teamsアイコン作成ツール</title>
+  <style>
+    :root {
+      --bg-red: rgb(255, 0, 0);
+      --text-black: rgb(0, 0, 0);
+      --panel-bg: #ffffff;
+      --line: #d9d9d9;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 24px;
+    }
+
+    .panel,
+    .preview-panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      font-size: 14px;
+      color: #555;
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #bbb;
+      border-radius: 10px;
+      font-size: 16px;
+      background: #fff;
+      font-family: "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    input[type="checkbox"] {
+      transform: scale(1.1);
+      margin-right: 8px;
+    }
+
+    .help {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      margin-top: 6px;
+      font-size: 15px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    .primary {
+      background: #111;
+      color: #fff;
+    }
+
+    .secondary {
+      background: #ececec;
+      color: #111;
+    }
+
+    .preview-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 760px;
+    }
+
+    .preview-title {
+      width: 100%;
+      margin-bottom: 16px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .icon-box {
+      width: min(88vw, 520px);
+      height: min(88vw, 520px);
+      background: var(--bg-red);
+      color: var(--text-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+      font-family: "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+    }
+
+    .number-line {
+      width: 100%;
+      text-align: center;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      margin: 0;
+    }
+
+    .name-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0.02em;
+      line-height: 1;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .family-name {
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .given-initial {
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .caption {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .code-preview {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      padding: 10px 12px;
+      background: #f6f6f6;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    canvas {
+      display: none;
+    }
+
+    @media (max-width: 920px) {
+      .wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-panel {
+        min-height: auto;
+      }
+
+      .row,
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1>Teamsアイコン作成ツール</h1>
+      <p class="sub">
+        学年・組・出席番号を選ぶと、4桁の番号を自動生成します。<br>
+        1行目に4桁の番号、2行目に苗字を表示し、必要なら名前の先頭1文字も追加できます。<br>
+        背景色は年度と学年に応じて自動で切り替わります。
+      </p>
+
+      <div class="field">
+        <label>自動判定された年度</label>
+        <div class="code-preview" id="schoolYearDisplay">2026年度</div>
+        <div class="help">端末の日付をもとに、4月1日〜翌年3月31日を1年度として自動判定します。</div>
+      </div>
+
+      <div class="field">
+        <label>学年・組・出席番号</label>
+        <div class="row">
+          <select id="grade"></select>
+          <select id="classNum"></select>
+          <select id="attendance"></select>
+        </div>
+        <div class="help">例：1学年・1組・01番 → 1101</div>
+      </div>
+
+      <div class="field">
+        <label>自動生成された4桁の番号</label>
+        <div class="code-preview" id="codePreview">1101</div>
+        <div class="help" id="colorInfo">背景色：赤</div>
+      </div>
+
+      <div class="field">
+        <label for="familyName">苗字</label>
+        <input id="familyName" type="text" placeholder="例：長崎" maxlength="6" />
+        <div class="help">通常は苗字だけを入力してください。</div>
+      </div>
+
+      <div class="field">
+        <label class="checkbox-row">
+          <input id="duplicateCheck" type="checkbox" />
+          同じ学級に同じ苗字の人がいる
+        </label>
+        <div class="help">チェックを入れると、名前の先頭1文字の入力欄が表示されます。</div>
+      </div>
+
+      <div class="field hidden" id="initialField">
+        <label for="givenInitial">名前の先頭1文字</label>
+        <input id="givenInitial" type="text" placeholder="例：東" maxlength="1" />
+        <div class="help">例：長崎東子 → 「東」を入力</div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="size">画像サイズ</label>
+          <select id="size">
+            <option value="400" selected>400 × 400</option>
+            <option value="512">512 × 512</option>
+            <option value="1024">1024 × 1024</option>
+            <option value="256">256 × 256</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="filename">保存ファイル名</label>
+          <input id="filename" type="text" value="teams_icon_1101_長崎" />
+        </div>
+      </div>
+
+      <div class="btns">
+        <button class="primary" id="createBtn">作成</button>
+        <button class="primary" id="downloadBtn">PNGで保存</button>
+        <button class="secondary" id="resetBtn">初期値に戻す</button>
+      </div>
+
+      <div class="help" style="margin-top: 18px;">
+        ※ 「作成」ボタンでプレビューを確定します。<br>
+        ※ 保存ボタンを押すと、通常はブラウザ既定のダウンロード先にPNG保存されます。
+      </div>
+    </section>
+
+    <section class="preview-panel">
+      <div class="preview-title">プレビュー</div>
+      <div class="icon-box" id="iconBox" aria-label="Teamsアイコンのプレビュー">
+        <p class="number-line" id="numberLine">1101</p>
+        <div class="name-wrap" id="nameWrap">
+          <span class="family-name" id="familyNamePreview">長崎</span>
+          <span class="given-initial" id="givenInitialPreview"></span>
+        </div>
+      </div>
+      <div class="caption">
+        背景色は赤、文字色は黒、フォントはゴシック体です。
+      </div>
+    </section>
+  </div>
+
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const schoolYearDisplay = document.getElementById('schoolYearDisplay');
+    const gradeSelect = document.getElementById('grade');
+    const classSelect = document.getElementById('classNum');
+    const attendanceSelect = document.getElementById('attendance');
+    const codePreview = document.getElementById('codePreview');
+
+    const familyNameInput = document.getElementById('familyName');
+    const duplicateCheck = document.getElementById('duplicateCheck');
+    const initialField = document.getElementById('initialField');
+    const givenInitialInput = document.getElementById('givenInitial');
+
+    const sizeSelect = document.getElementById('size');
+    const filenameInput = document.getElementById('filename');
+
+    const createBtn = document.getElementById('createBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    const iconBox = document.getElementById('iconBox');
+    const numberLine = document.getElementById('numberLine');
+    const familyNamePreview = document.getElementById('familyNamePreview');
+    const givenInitialPreview = document.getElementById('givenInitialPreview');
+
+    const canvas = document.getElementById('canvas');
+
+    const defaults = {
+      grade: '1',
+      classNum: '1',
+      attendance: '01',
+      familyName: '長崎',
+      duplicate: false,
+      givenInitial: '',
+      size: '400',
+      filename: 'teams_icon_1101_長崎'
+    };
+
+    function fillSelect(select, start, end, formatter, selectedValue) {
+      select.innerHTML = '';
+      for (let i = start; i <= end; i++) {
+        const option = document.createElement('option');
+        option.value = formatter.value(i);
+        option.textContent = formatter.label(i);
+        if (option.value === selectedValue) option.selected = true;
+        select.appendChild(option);
+      }
+    }
+
+    fillSelect(gradeSelect, 1, 3, {
+      value: (i) => String(i),
+      label: (i) => `${i}学年`
+    }, defaults.grade);
+
+    fillSelect(classSelect, 1, 7, {
+      value: (i) => String(i),
+      label: (i) => `${i}組`
+    }, defaults.classNum);
+
+    fillSelect(attendanceSelect, 1, 45, {
+      value: (i) => String(i).padStart(2, '0'),
+      label: (i) => `${String(i).padStart(2, '0')}番`
+    }, defaults.attendance);
+
+    function getCurrentSchoolYear() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      return month >= 4 ? year : year - 1;
+    }
+
+    function buildCode() {
+      return `${gradeSelect.value}${classSelect.value}${attendanceSelect.value}`;
+    }
+
+    function getRotationIndex(year) {
+      return (Number(year) - 2026) % 3 < 0 ? ((Number(year) - 2026) % 3) + 3 : (Number(year) - 2026) % 3;
+    }
+
+    function getBackgroundColorInfo(year, grade) {
+      const palettes = [
+        {
+          1: { label: '赤', rgb: 'rgb(255, 0, 0)' },
+          2: { label: '緑', rgb: 'rgb(0, 175, 80)' },
+          3: { label: '青', rgb: 'rgb(87, 192, 235)' }
+        },
+        {
+          1: { label: '青', rgb: 'rgb(87, 192, 235)' },
+          2: { label: '赤', rgb: 'rgb(255, 0, 0)' },
+          3: { label: '緑', rgb: 'rgb(0, 175, 80)' }
+        },
+        {
+          1: { label: '緑', rgb: 'rgb(0, 175, 80)' },
+          2: { label: '青', rgb: 'rgb(87, 192, 235)' },
+          3: { label: '赤', rgb: 'rgb(255, 0, 0)' }
+        }
+      ];
+
+      const rotation = getRotationIndex(year);
+      return palettes[rotation][Number(grade)];
+    }
+
+    function applyBackgroundColor() {
+      const currentSchoolYear = getCurrentSchoolYear();
+      const info = getBackgroundColorInfo(currentSchoolYear, gradeSelect.value);
+      iconBox.style.background = info.rgb;
+      schoolYearDisplay.textContent = `${currentSchoolYear}年度`;
+      document.getElementById('colorInfo').textContent = `背景色：${info.label}（${info.rgb.replace('rgb', 'RGB').replace('(', '').replace(')', '').replaceAll(',', ', ')}）`;
+      return info;
+    }
+
+    function sanitizeSingleChar(value) {
+      return Array.from(value.trim())[0] || '';
+    }
+
+    function updateDuplicateField() {
+      initialField.classList.toggle('hidden', !duplicateCheck.checked);
+      if (!duplicateCheck.checked) {
+        givenInitialInput.value = '';
+      }
+    }
+
+    function buildDisplayName() {
+      const family = familyNameInput.value.trim() || '苗字';
+      const initial = duplicateCheck.checked ? sanitizeSingleChar(givenInitialInput.value) : '';
+      return { family, initial };
+    }
+
+    function fitPreviewText() {
+      const code = numberLine.textContent || '1101';
+      const family = familyNamePreview.textContent || '苗字';
+      const initial = givenInitialPreview.textContent || '';
+      const boxSize = iconBox.clientWidth;
+
+      let codeSize = boxSize * 0.31;
+      if (code.length <= 3) codeSize = boxSize * 0.33;
+      numberLine.style.fontSize = codeSize + 'px';
+      numberLine.style.marginBottom = (boxSize * 0.05) + 'px';
+
+      let familySize = boxSize * 0.31;
+      const familyLen = family.length;
+      if (familyLen >= 3) familySize = boxSize * 0.29;
+      if (familyLen >= 4) familySize = boxSize * 0.27;
+      if (familyLen >= 5) familySize = boxSize * 0.24;
+      if (familyLen >= 6) familySize = boxSize * 0.22;
+
+      familyNamePreview.style.fontSize = familySize + 'px';
+      givenInitialPreview.style.fontSize = (familySize * 0.72) + 'px';
+      givenInitialPreview.style.paddingBottom = (boxSize * 0.01) + 'px';
+    }
+
+    function updateFileName() {
+      const code = buildCode();
+      const name = familyNameInput.value.trim() || 'name';
+      const initial = duplicateCheck.checked ? sanitizeSingleChar(givenInitialInput.value) : '';
+      filenameInput.value = `teams_icon_${code}_${name}${initial}`;
+    }
+
+    function createPreview() {
+      const code = buildCode();
+      const name = buildDisplayName();
+
+      codePreview.textContent = code;
+      numberLine.textContent = code;
+      familyNamePreview.textContent = name.family;
+      givenInitialPreview.textContent = name.initial;
+      applyBackgroundColor();
+      fitPreviewText();
+    }
+
+    function renderCanvas() {
+      const size = Number(sizeSelect.value);
+      const code = numberLine.textContent || '1101';
+      const family = familyNamePreview.textContent || '苗字';
+      const initial = givenInitialPreview.textContent || '';
+
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      ctx.clearRect(0, 0, size, size);
+      const bgInfo = getBackgroundColorInfo(getCurrentSchoolYear(), gradeSelect.value);
+      ctx.fillStyle = bgInfo.rgb;
+      ctx.fillRect(0, 0, size, size);
+
+      ctx.fillStyle = 'rgb(0, 0, 0)';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      let codeFontSize = size * 0.31;
+      if (code.length <= 3) codeFontSize = size * 0.33;
+      ctx.font = `700 ${codeFontSize}px "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif`;
+      ctx.fillText(code, size / 2, size * 0.30);
+
+      let familyFontSize = size * 0.31;
+      const familyLen = family.length;
+      if (familyLen >= 3) familyFontSize = size * 0.29;
+      if (familyLen >= 4) familyFontSize = size * 0.27;
+      if (familyLen >= 5) familyFontSize = size * 0.24;
+      if (familyLen >= 6) familyFontSize = size * 0.22;
+
+      const initialFontSize = familyFontSize * 0.72;
+
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.font = `700 ${familyFontSize}px "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif`;
+      const familyWidth = ctx.measureText(family).width;
+
+      let initialWidth = 0;
+      if (initial) {
+        ctx.font = `700 ${initialFontSize}px "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif`;
+        initialWidth = ctx.measureText(initial).width;
+      }
+
+      const totalWidth = familyWidth + initialWidth;
+      const startX = (size - totalWidth) / 2;
+      const baselineY = size * 0.71;
+
+      ctx.font = `700 ${familyFontSize}px "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif`;
+      ctx.fillText(family, startX, baselineY);
+
+      if (initial) {
+        ctx.font = `700 ${initialFontSize}px "Yu Gothic", "YuGothic", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif`;
+        ctx.fillText(initial, startX + familyWidth, baselineY);
+      }
+    }
+
+    function downloadPNG() {
+      renderCanvas();
+      const rawName = filenameInput.value.trim() || 'teams_icon';
+      const safeName = rawName.replace(/[\/:*?"<>|]/g, '_');
+      const dataUrl = canvas.toDataURL('image/png');
+
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      link.download = `${safeName}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function resetForm() {
+      schoolYearDisplay.textContent = `${getCurrentSchoolYear()}年度`;
+      gradeSelect.value = defaults.grade;
+      classSelect.value = defaults.classNum;
+      attendanceSelect.value = defaults.attendance;
+      familyNameInput.value = defaults.familyName;
+      duplicateCheck.checked = defaults.duplicate;
+      givenInitialInput.value = defaults.givenInitial;
+      sizeSelect.value = defaults.size;
+      filenameInput.value = defaults.filename;
+      updateDuplicateField();
+      createPreview();
+    }
+
+    gradeSelect.addEventListener('change', () => {
+      codePreview.textContent = buildCode();
+      applyBackgroundColor();
+      updateFileName();
+    });
+    classSelect.addEventListener('change', () => {
+      codePreview.textContent = buildCode();
+      updateFileName();
+    });
+    attendanceSelect.addEventListener('change', () => {
+      codePreview.textContent = buildCode();
+      updateFileName();
+    });
+
+    familyNameInput.addEventListener('input', updateFileName);
+    givenInitialInput.addEventListener('input', () => {
+      givenInitialInput.value = sanitizeSingleChar(givenInitialInput.value);
+      updateFileName();
+    });
+
+    duplicateCheck.addEventListener('change', () => {
+      updateDuplicateField();
+      updateFileName();
+    });
+
+    createBtn.addEventListener('click', createPreview);
+    downloadBtn.addEventListener('click', () => {
+      createPreview();
+      setTimeout(() => {
+        downloadPNG();
+      }, 50);
+    });
+    resetBtn.addEventListener('click', resetForm);
+    window.addEventListener('resize', fitPreviewText);
+
+    resetForm();
+    applyBackgroundColor();
+  </script>
+</body>
+</html>
